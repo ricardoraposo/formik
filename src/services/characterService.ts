@@ -1,8 +1,8 @@
 import app from "./api";
 
 class CharacterService {
-  async getAllByQuery(name: string) {
-    return app.get(`/character/?name=${name}`);
+  async getAllByQuery({ name, status }: { name: string; status: string }) {
+    return app.get(`/character/?name=${name}&status=${status}`);
   };
 };
 
