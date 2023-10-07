@@ -1,9 +1,10 @@
 'use client';
-
+import React from 'react';
 import char from '@/services/characterService';
 import { useQuery } from '@tanstack/react-query';
 import { useFormik } from 'formik';
 import MapRick from './MapRick';
+import * as yup from 'yup';
 
 export interface ICharacter {
 	id: number;
@@ -29,11 +30,28 @@ export default function Home() {
 		retry: 0,
 		select: ({ data }) => data,
 	});
+	React.useEffect(() => {
+		if (isError) {
+			formik.setFieldValue(
+				'errorMessage',
+				(error as IError).response.data.error,
+			);
+		}
+	}, [error]);
 
 	const formik = useFormik({
-		initialValues: { name: '', status: '' },
+		initialValues: { name: '', status: '', errorMessage: '' },
+		validationSchema: yup.object().shape({
+			name: yup.string(),
+			status: yup.string(),
+		}),
 		onSubmit: async () => {
-			refetch();
+			try {
+				formik.setFieldValue('errorMessage', '');
+				refetch();
+			} catch (error) {
+				console.log('eeeeee', error);
+			}
 		},
 	});
 
@@ -60,7 +78,7 @@ export default function Home() {
 			<button onClick={() => formik.handleSubmit()}>Search</button>
 			<div>
 				{isError ? (
-					(error as IError).response.data.error
+					formik.values.errorMessage
 				) : (
 					<>
 						{!isLoading ? (
